@@ -1,3 +1,5 @@
+import sys
+
 from keras.models import load_model, Sequential
 from keras.preprocessing.image import img_to_array, array_to_img, load_img
 from matplotlib import pyplot as plt
@@ -214,7 +216,7 @@ if __name__ == "__main__":
     print("---Model Loaded---")
 
     # Load the satellite images
-    zonesPath = "./data/zones/"
+    zonesPath = sys.argv[1]
 
     # Create the detector
     detect = Detector(model, zonesPath)
