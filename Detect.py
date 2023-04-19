@@ -21,7 +21,7 @@ class Detector:
         self.zonesPath = zonesPath
         self.zones = [os.path.join(zonesPath, f) for f in os.listdir(zonesPath) 
             if os.path.isfile(os.path.join(zonesPath, f))]
-        self.threshold = 0.5
+        self.threshold = 0.8
         
         self.results = {}
     
