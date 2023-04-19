@@ -223,7 +223,7 @@ if __name__ == "__main__":
     probas, probaMap = detect.predictProba()
     results = detect.cleanProba(probas)
     
-    # detect.drawBoxes()
+    detect.drawBoxes()
     # detect.drawHeatmap(probaMap)
 
     with open("predictions/results.json","w") as f:
