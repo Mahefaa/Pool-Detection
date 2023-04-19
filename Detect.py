@@ -216,7 +216,8 @@ if __name__ == "__main__":
     print("---Model Loaded---")
 
     # Load the satellite images
-    zonesPath = sys.argv[1]
+    zonesPathArgs:str = sys.argv[1]
+    zonesPath = zonesPathArgs if zonesPathArgs.endswith('/') else zonesPathArgs + '/'
 
     # Create the detector
     detect = Detector(model, zonesPath)
