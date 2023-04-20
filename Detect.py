@@ -19,13 +19,20 @@ class Detector:
     def __init__(self, model:Sequential, zonesPath:str):
         self.model = model
         self.zonesPath = zonesPath
-        self.zones = [os.path.join(zonesPath, f) for f in os.listdir(zonesPath) 
-            if os.path.isfile(os.path.join(zonesPath, f))]
+        if os.path.isdir(zonesPath):
+            self.zones = [os.path.join(zonesPath, f) for f in os.listdir(zonesPath)
+                if os.path.isfile(os.path.join(zonesPath, f))]
+        elif os.path.isfile(zonesPath):
+            self.zones = [zonesPath]
+            print(self.zones)
         self.threshold = 0.8
-        
+
         self.results = {}
-    
+
     def removePrefix(self, s:str)->str:
+        if os.path.isfile(s):
+            head, tail = os.path.split(s)
+            return tail
         if s.startswith(self.zonesPath):
             return s[len(self.zonesPath):]
         return s
@@ -117,7 +124,7 @@ class Detector:
                 pr = self.model.predict_proba(x)[0][0]
                 if pr >= self.threshold:
                     res[self.zones[idx]]["pos"].append((int(h),int(w)))
-                    res[self.zones[idx]]["probas"].append(float(pr))   
+                    res[self.zones[idx]]["probas"].append(float(pr))
             res[self.zones[idx]]["nbPools"] = len(res[self.zones[idx]]["pos"])
             res[self.zones[idx]].pop("adjacentBoxes",None)
         self.results = res
@@ -143,7 +150,7 @@ class Detector:
                     xy = (coord[0],coord[1]-10)
                 else:
                     xy = (coord[0],coord[1]+60)
-                
+
                 ax.annotate(
                     s="prob:{:.3f}".format(proba),
                     xy=xy, color=color,weight="bold", ha="center", va="center")
@@ -210,20 +217,26 @@ if __name__ == "__main__":
         print("---Training The Model---")
         os.system("python {}".format(trainFile))
         print("---Model Trained---")
-        
+
     print("---Loading the Model---")
     model = load_model(path2Weights)
     print("---Model Loaded---")
 
     # Load the satellite images
     zonesPathArgs:str = sys.argv[1]
-    zonesPath = zonesPathArgs if zonesPathArgs.endswith('/') else zonesPathArgs + '/'
+    zonesPath = None
+    if os.path.isdir(zonesPathArgs):
+        zonesPath = zonesPathArgs if zonesPathArgs.endswith("/") else zonesPathArgs + '/'
+    elif os.path.isfile(zonesPathArgs):
+        zonesPath = zonesPathArgs
+    else:
+        raise ValueError("Neither dir nor file : %s", zonesPathArgs)
 
     # Create the detector
     detect = Detector(model, zonesPath)
     probas, probaMap = detect.predictProba()
     results = detect.cleanProba(probas)
-    
+
     detect.drawBoxes()
     # detect.drawHeatmap(probaMap)
 
